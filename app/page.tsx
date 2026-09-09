@@ -1,118 +1,261 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ScreenId, ALL_SCREENS } from '@/components/screens/screenTypes';
-import { Screen1WelcomeSignIn } from '@/components/screens/Screen1WelcomeSignIn';
-import { Screen2CreateAccount } from '@/components/screens/Screen2CreateAccount';
-import { Screen3WorkspaceSelection } from '@/components/screens/Screen3WorkspaceSelection';
-import { Screen4LearnerDashboard } from '@/components/screens/Screen4LearnerDashboard';
-import { Screen5CoursePlayer } from '@/components/screens/Screen5CoursePlayer';
-import { Screen6LifeSkills } from '@/components/screens/Screen6LifeSkills';
-import { Screen7PetGrooming } from '@/components/screens/Screen7PetGrooming';
-import { Screen8BusinessLeadership } from '@/components/screens/Screen8BusinessLeadership';
-import { Screen9ProgressCertifications } from '@/components/screens/Screen9ProgressCertifications';
-import { Screen10BusinessPlanBuilder } from '@/components/screens/Screen10BusinessPlanBuilder';
-import { Screen11FundingReferrals } from '@/components/screens/Screen11FundingReferrals';
-import { Screen12GraduationSalonLaunch } from '@/components/screens/Screen12GraduationSalonLaunch';
-import { Screen13MentorNavigatorSupport } from '@/components/screens/Screen13MentorNavigatorSupport';
-import { Screen14SalonWorkspace } from '@/components/screens/Screen14SalonWorkspace';
-import { Screen15SalonClientsPets } from '@/components/screens/Screen15SalonClientsPets';
-import { Screen16SalonPaymentsFinancials } from '@/components/screens/Screen16SalonPaymentsFinancials';
-import { Screen17SalonMarketingGrowth } from '@/components/screens/Screen17SalonMarketingGrowth';
-import { Screen18SalonReportsAnalytics } from '@/components/screens/Screen18SalonReportsAnalytics';
-import { Screen19PartnerAgencyPortal } from '@/components/screens/Screen19PartnerAgencyPortal';
-import { Screen20ProgramAdminWorkspace } from '@/components/screens/Screen20ProgramAdminWorkspace';
+import { Navbar, NavTab } from '@/components/Navbar';
+import { ScenarioBuilderView } from '@/components/scenario/ScenarioBuilderView';
+import { Roadmap72HourView } from '@/components/roadmap/Roadmap72HourView';
+import { CourseStudioView } from '@/components/courses/CourseStudioView';
+import { LearningPathsView } from '@/components/paths/LearningPathsView';
+import { AnalyticsReportsView } from '@/components/analytics/AnalyticsReportsView';
+import { CourseLibraryView } from '@/components/library/CourseLibraryView';
+import { WorkspaceHubView } from '@/components/workspace/WorkspaceHubView';
+import { LandingPageView } from '@/components/landing/LandingPageView';
+import { ScenarioPlayerModal } from '@/components/scenario/ScenarioPlayerModal';
+import { AIGenerateScenarioModal } from '@/components/scenario/AIGenerateScenarioModal';
+import { AuthModal, AuthUser } from '@/components/auth/AuthModal';
+import { 
+  INITIAL_SCENARIOS, 
+  INITIAL_COURSES, 
+  INITIAL_LEARNING_PATHS, 
+  INITIAL_LEARNER_REPORTS 
+} from '@/lib/sample-data';
+import { Scenario, Course, LearningPath, LearnerReport } from '@/lib/types';
 
 export default function Home() {
-  // Start on Screen 3 (Workspace Selection) or sync with window hash
-  const [currentScreen, setCurrentScreen] = useState<ScreenId>('screen-3');
+  const [activeTab, setActiveTab] = useState<NavTab>('landing');
+  const [scenarios, setScenarios] = useState<Scenario[]>(INITIAL_SCENARIOS);
+  const [activeScenarioId, setActiveScenarioId] = useState<string>(INITIAL_SCENARIOS[0].id);
+  const [courses, setCourses] = useState<Course[]>(INITIAL_COURSES);
+  const [paths, setPaths] = useState<LearningPath[]>(INITIAL_LEARNING_PATHS);
+  const [reports, setReports] = useState<LearnerReport[]>(INITIAL_LEARNER_REPORTS);
 
-  // Listen to hash change for direct routing
-  useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.replace('#', '') as ScreenId;
-      if (hash && ALL_SCREENS.some(s => s.id === hash)) {
-        setCurrentScreen(hash);
+  // Auth and Gating state (lazy initialized from localStorage)
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('leashed_auth_user');
+        return stored ? JSON.parse(stored) : null;
+      } catch {
+        return null;
       }
-    };
-
-    if (typeof window !== 'undefined') {
-      handleHashChange();
-      window.addEventListener('hashchange', handleHashChange);
-      return () => window.removeEventListener('hashchange', handleHashChange);
     }
-  }, []);
+    return null;
+  });
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
+  const [authGateMessage, setAuthGateMessage] = useState<string | undefined>(undefined);
+  const [pendingTab, setPendingTab] = useState<NavTab | null>(null);
 
-  const handleNavigate = (screenId: ScreenId) => {
-    setCurrentScreen(screenId);
-    if (typeof window !== 'undefined') {
-      window.location.hash = screenId;
+  // Global modal triggers
+  const [isPlayerOpen, setIsPlayerOpen] = useState(false);
+  const [isAIGenOpen, setIsAIGenOpen] = useState(false);
+
+  const currentScenario = scenarios.find(s => s.id === activeScenarioId) || scenarios[0];
+
+  const handleOpenAuth = (mode: 'signin' | 'signup' = 'signup', gateMessage?: string) => {
+    setAuthMode(mode);
+    setAuthGateMessage(gateMessage);
+    setIsAuthModalOpen(true);
+  };
+
+  const handleSelectTab = (tab: NavTab) => {
+    if (tab === 'landing') {
+      setActiveTab('landing');
+      return;
+    }
+
+    // Auth gate for LMS tabs
+    if (!currentUser) {
+      setPendingTab(tab);
+      const tabLabels: Record<NavTab, string> = {
+        landing: 'Home',
+        'scenario-builder': 'Scenario Studio',
+        '72h-plan': '72-Hour Roadmap',
+        courses: 'Course Studio',
+        paths: 'Learning Pathways',
+        analytics: 'Analytics & Outcomes',
+        library: 'SCORM Templates',
+        'google-workspace': 'Google Workspace Hub',
+      };
+      handleOpenAuth('signup', `Create your account or sign in to access the ${tabLabels[tab]} portal.`);
+      return;
+    }
+
+    setActiveTab(tab);
+  };
+
+  const handleAuthSuccess = (user: AuthUser) => {
+    setCurrentUser(user);
+    try {
+      localStorage.setItem('leashed_auth_user', JSON.stringify(user));
+    } catch (e) {
+      console.error('Error storing session:', e);
+    }
+    setIsAuthModalOpen(false);
+
+    if (pendingTab) {
+      setActiveTab(pendingTab);
+      setPendingTab(null);
+    } else if (activeTab === 'landing') {
+      setActiveTab('courses');
     }
   };
 
-  // Render the current screen according to heading and router specification
+  const handleSignOut = () => {
+    setCurrentUser(null);
+    try {
+      localStorage.removeItem('leashed_auth_user');
+    } catch (e) {
+      console.error('Error removing session:', e);
+    }
+    setActiveTab('landing');
+  };
+
+  const handleUpdateScenario = (updated: Scenario) => {
+    setScenarios(prev => prev.map(s => s.id === updated.id ? updated : s));
+  };
+
+  const handleCreateScenario = (newScenario: Scenario) => {
+    setScenarios(prev => [newScenario, ...prev]);
+    setActiveScenarioId(newScenario.id);
+    setActiveTab('scenario-builder');
+  };
+
+  const handleUpdateCourse = (updated: Course) => {
+    setCourses(prev => prev.map(c => c.id === updated.id ? updated : c));
+  };
+
+  const handleAddCourse = (newCourse: Course) => {
+    setCourses(prev => [newCourse, ...prev]);
+  };
+
+  const handleLaunchScenario = (scenarioId?: string) => {
+    if (scenarioId) {
+      setActiveScenarioId(scenarioId);
+    }
+    setIsPlayerOpen(true);
+  };
+
   return (
-    <div className="min-h-screen w-full bg-slate-50 antialiased text-slate-800">
-      {currentScreen === 'screen-1' && (
-        <Screen1WelcomeSignIn onNavigate={handleNavigate} />
+    <div className="min-h-screen w-full m-0 p-0 bg-slate-100/60 font-sans text-slate-900 flex flex-col">
+      {activeTab === 'landing' ? (
+        <LandingPageView
+          onNavigateToTab={handleSelectTab}
+          onLaunchScenario={handleLaunchScenario}
+          onOpenAuth={handleOpenAuth}
+          currentUser={currentUser}
+        />
+      ) : (
+        <>
+          {/* Global Navigation Bar for LMS Studio */}
+          <Navbar
+            activeTab={activeTab}
+            onSelectTab={handleSelectTab}
+            onOpenQuickGenerate={() => setIsAIGenOpen(true)}
+            onPlayCurrentScenario={() => setIsPlayerOpen(true)}
+            currentUser={currentUser}
+            onOpenAuth={handleOpenAuth}
+            onSignOut={handleSignOut}
+          />
+
+          {/* Main Container - Full Bleed Edge to Edge */}
+          <main className="flex-1 w-full p-4 sm:p-6 lg:p-8">
+            {activeTab === 'scenario-builder' && (
+              <ScenarioBuilderView
+                scenarios={scenarios}
+                activeScenarioId={activeScenarioId}
+                onSelectScenario={setActiveScenarioId}
+                onUpdateScenario={handleUpdateScenario}
+                onCreateScenario={handleCreateScenario}
+              />
+            )}
+
+            {activeTab === '72h-plan' && (
+              <Roadmap72HourView />
+            )}
+
+            {activeTab === 'courses' && (
+              <CourseStudioView
+                courses={courses}
+                onUpdateCourse={handleUpdateCourse}
+                onAddCourse={handleAddCourse}
+                onLaunchScenario={handleLaunchScenario}
+              />
+            )}
+
+            {activeTab === 'paths' && (
+              <LearningPathsView
+                paths={paths}
+                courses={courses}
+                onSelectCourse={() => {
+                  setActiveTab('courses');
+                }}
+                onLaunchScenario={handleLaunchScenario}
+              />
+            )}
+
+            {activeTab === 'analytics' && (
+              <AnalyticsReportsView reports={reports} />
+            )}
+
+            {activeTab === 'library' && (
+              <CourseLibraryView />
+            )}
+
+            {activeTab === 'google-workspace' && (
+              <WorkspaceHubView scenarios={scenarios} courses={courses} />
+            )}
+          </main>
+
+          {/* Studio Footer */}
+          <footer className="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-500">
+            <div className="w-full px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-slate-700">Leashed.io Social Impact LMS</span>
+                <span>•</span>
+                <span>Skills. Stability. Second Chances.</span>
+              </div>
+              <div className="flex items-center gap-4 text-[11px] text-slate-500">
+                <button
+                  onClick={() => setActiveTab('landing')}
+                  className="text-teal-600 font-semibold hover:underline cursor-pointer"
+                >
+                  &larr; Return to Landing Page
+                </button>
+                <span>•</span>
+                <span>Powered by Gemini 2.5 Flash</span>
+              </div>
+            </div>
+          </footer>
+        </>
       )}
-      {currentScreen === 'screen-2' && (
-        <Screen2CreateAccount onNavigate={handleNavigate} />
+
+      {/* Global Modals for simulation & generation */}
+      {currentScenario && (
+        <ScenarioPlayerModal
+          scenario={currentScenario}
+          isOpen={isPlayerOpen}
+          onClose={() => setIsPlayerOpen(false)}
+        />
       )}
-      {currentScreen === 'screen-3' && (
-        <Screen3WorkspaceSelection onNavigate={handleNavigate} />
-      )}
-      {currentScreen === 'screen-4' && (
-        <Screen4LearnerDashboard onNavigate={handleNavigate} />
-      )}
-      {currentScreen === 'screen-5' && (
-        <Screen5CoursePlayer onNavigate={handleNavigate} />
-      )}
-      {currentScreen === 'screen-6' && (
-        <Screen6LifeSkills onNavigate={handleNavigate} />
-      )}
-      {currentScreen === 'screen-7' && (
-        <Screen7PetGrooming onNavigate={handleNavigate} />
-      )}
-      {currentScreen === 'screen-8' && (
-        <Screen8BusinessLeadership onNavigate={handleNavigate} />
-      )}
-      {currentScreen === 'screen-9' && (
-        <Screen9ProgressCertifications onNavigate={handleNavigate} />
-      )}
-      {currentScreen === 'screen-10' && (
-        <Screen10BusinessPlanBuilder onNavigate={handleNavigate} />
-      )}
-      {currentScreen === 'screen-11' && (
-        <Screen11FundingReferrals onNavigate={handleNavigate} />
-      )}
-      {currentScreen === 'screen-12' && (
-        <Screen12GraduationSalonLaunch onNavigate={handleNavigate} />
-      )}
-      {currentScreen === 'screen-13' && (
-        <Screen13MentorNavigatorSupport onNavigate={handleNavigate} />
-      )}
-      {currentScreen === 'screen-14' && (
-        <Screen14SalonWorkspace onNavigate={handleNavigate} />
-      )}
-      {currentScreen === 'screen-15' && (
-        <Screen15SalonClientsPets onNavigate={handleNavigate} />
-      )}
-      {currentScreen === 'screen-16' && (
-        <Screen16SalonPaymentsFinancials onNavigate={handleNavigate} />
-      )}
-      {currentScreen === 'screen-17' && (
-        <Screen17SalonMarketingGrowth onNavigate={handleNavigate} />
-      )}
-      {currentScreen === 'screen-18' && (
-        <Screen18SalonReportsAnalytics onNavigate={handleNavigate} />
-      )}
-      {currentScreen === 'screen-19' && (
-        <Screen19PartnerAgencyPortal onNavigate={handleNavigate} />
-      )}
-      {currentScreen === 'screen-20' && (
-        <Screen20ProgramAdminWorkspace onNavigate={handleNavigate} />
-      )}
+
+      <AIGenerateScenarioModal
+        isOpen={isAIGenOpen}
+        onClose={() => setIsAIGenOpen(false)}
+        onScenarioGenerated={handleCreateScenario}
+      />
+
+      {/* Authentication & Access Gate Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        initialMode={authMode}
+        gateMessage={authGateMessage}
+        onClose={() => {
+          setIsAuthModalOpen(false);
+          setPendingTab(null);
+        }}
+        onSuccess={handleAuthSuccess}
+      />
     </div>
   );
 }

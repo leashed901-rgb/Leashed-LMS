@@ -11,21 +11,18 @@ import {
   Clock, 
   Play,
   Share2,
-  CheckCircle2,
-  ShieldAlert,
-  Server
+  CheckCircle2
 } from 'lucide-react';
-import { EnterpriseUser, TenantSlug, ENTERPRISE_TENANTS } from '@/lib/db/multiTenantService';
+import { AuthUser } from '@/components/auth/AuthModal';
 
-export type NavTab = 'landing' | 'scenario-builder' | '72h-plan' | 'courses' | 'paths' | 'analytics' | 'library' | 'google-workspace' | 'global-admin';
+export type NavTab = 'landing' | 'scenario-builder' | '72h-plan' | 'courses' | 'paths' | 'analytics' | 'library' | 'google-workspace';
 
 interface NavbarProps {
   activeTab: NavTab;
   onSelectTab: (tab: NavTab) => void;
   onOpenQuickGenerate: () => void;
   onPlayCurrentScenario: () => void;
-  currentUser?: EnterpriseUser | any | null;
-  currentTenant?: TenantSlug;
+  currentUser?: AuthUser | null;
   onOpenAuth?: (mode: 'signin' | 'signup') => void;
   onSignOut?: () => void;
 }
@@ -36,11 +33,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenQuickGenerate,
   onPlayCurrentScenario,
   currentUser,
-  currentTenant = 'learn',
   onOpenAuth,
   onSignOut,
 }) => {
-  const isGlobalAdmin = currentUser?.role === 'GlobalAdmin' || currentTenant === 'global';
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/95 backdrop-blur-md">
       <div className="flex h-16 w-full items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -179,22 +174,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             Google Workspace
             <span className="rounded bg-indigo-100 text-indigo-800 px-1 py-0.2 text-[9px] font-bold">9 APIS</span>
           </button>
-
-          {isGlobalAdmin && (
-            <button
-              id="nav-tab-global-admin"
-              onClick={() => onSelectTab('global-admin')}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                activeTab === 'global-admin'
-                  ? 'bg-rose-600 text-white shadow-sm'
-                  : 'text-rose-600 hover:text-rose-900 hover:bg-rose-50/80 bg-rose-50/40 border border-rose-200'
-              }`}
-            >
-              <ShieldAlert className="h-3.5 w-3.5 text-rose-500" />
-              Global Governance
-              <span className="rounded bg-rose-200 text-rose-900 px-1 py-0.2 text-[9px] font-bold">ROOT</span>
-            </button>
-          )}
         </nav>
 
         {/* Action Controls */}
@@ -223,12 +202,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="flex items-center gap-2 border-l border-slate-200 pl-2 ml-1">
               <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-xs text-slate-800">
                 <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                <span className="font-semibold text-slate-900 hidden lg:inline max-w-[140px] truncate">
-                  {currentUser.fullName || currentUser.name}
-                </span>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 uppercase tracking-wider">
-                  {currentUser.role}
-                </span>
+                <span className="font-semibold text-slate-900 hidden lg:inline max-w-[120px] truncate">{currentUser.name}</span>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 uppercase tracking-wider">{currentUser.role}</span>
               </div>
               <button
                 type="button"

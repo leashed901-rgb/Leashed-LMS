@@ -3,14 +3,14 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { NavTab } from '@/components/Navbar';
-import { EnterpriseUser } from '@/lib/db/multiTenantService';
+import { AuthUser } from '@/components/auth/AuthModal';
 import { Play, X, Search, Sparkles, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 interface LandingPageViewProps {
   onNavigateToTab: (tab: NavTab) => void;
   onLaunchScenario?: (scenarioId?: string) => void;
   onOpenAuth?: (mode: 'signin' | 'signup', gateMessage?: string) => void;
-  currentUser?: EnterpriseUser | any | null;
+  currentUser?: AuthUser | null;
 }
 
 export const LandingPageView: React.FC<LandingPageViewProps> = ({
@@ -195,7 +195,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs text-white">
                     <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                    <span className="font-semibold">{currentUser.fullName || currentUser.name}</span>
+                    <span className="font-semibold">{currentUser.name}</span>
                     <span className="text-[10px] bg-blue-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">{currentUser.role}</span>
                   </div>
                   <button
