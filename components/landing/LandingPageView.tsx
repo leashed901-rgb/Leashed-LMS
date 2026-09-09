@@ -62,7 +62,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
       image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDJPTjk92Q6g1gu6dTVyMqcvhkBMEuVzYCSeNNeTL8PKQIWiyGm7bIRHJtiSSjFMBDngWZ4a-KwzYsqNguufycu7Vo3G9c0S6tq3N1HwtxzGnEedmG2ikbShDe0XhfPLrdLilr7iIGuFLORye2cXx3LRqLe95kSvEXMn8lOsqx3tdMILHe2ZD35we3cct0mxBzTiMhytyywtQ0FnIcBbPoWH7C3BTvf6defFLHN2LMsPcNAVWf4h228ig',
       badgeColor: 'bg-amber-500',
       tabTarget: 'google-workspace' as NavTab,
-      details: 'WIOA funding navigation, Department of Labor apprenticeships, USDA rural micro-enterprise grants, and community mentorship matches.',
+      details: 'WIOA funding navigation, Department of Labor apprenticeships, USDA grants, and the EDA $25M AI Upskill Accelerator Pilot Program (Deadline: July 10, 2026, 4:59pm ET via EDGE portal).',
     },
   ];
 
@@ -787,6 +787,36 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
             </p>
 
             <div className="space-y-2.5 mb-6">
+              <div className="p-3.5 rounded-xl bg-gradient-to-br from-indigo-50/90 via-blue-50/50 to-white border border-indigo-200/80 shadow-xs">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="rounded-md bg-indigo-600 px-2 py-0.5 text-[10px] font-extrabold text-white tracking-wide uppercase">
+                    Federal Initiative
+                  </span>
+                  <span className="text-[11px] font-bold text-indigo-900">
+                    EDA AI Upskill Accelerator Pilot Program
+                  </span>
+                </div>
+                <p className="text-xs text-slate-700 leading-relaxed mb-2">
+                  The U.S. Economic Development Administration (EDA) is investing <strong>$25 million</strong> in a national competition to support industry-driven partnerships to upskill workers in AI technologies, advancing <em>America’s AI Action Plan</em> and strengthening regional economies.
+                </p>
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-indigo-100 text-[11px]">
+                  <div className="text-slate-600">
+                    <span className="font-semibold text-slate-900">Deadline:</span> July 10, 2026, 4:59pm ET via <strong>EDGE portal</strong>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsNonprofitsModalOpen(false);
+                      onNavigateToTab('paths');
+                    }}
+                    className="inline-flex items-center gap-1 font-bold text-indigo-700 hover:text-indigo-900 hover:underline cursor-pointer"
+                  >
+                    <span>View AI Upskill Track</span>
+                    <span>&rarr;</span>
+                  </button>
+                </div>
+              </div>
+
               <div className="p-3 rounded-lg bg-slate-50 border border-slate-100 flex items-start gap-3">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <div className="text-xs">

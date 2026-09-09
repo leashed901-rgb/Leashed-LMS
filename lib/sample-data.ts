@@ -360,6 +360,56 @@ export const INITIAL_COURSES: Course[] = [
         ]
       }
     ]
+  },
+  {
+    id: 'course-103',
+    title: 'AI Upskill Accelerator: Applied AI for American Workforce Productivity',
+    description: 'Empower workers with in-demand AI competencies, intelligent automation, prompt workflows, and ethical AI operations to enhance business outcomes in regional economies.',
+    category: 'AI Workforce Training & EDA Pilot',
+    targetAudience: 'Regional Workers, Small Business Teams, Nonprofits, Career Changers',
+    estimatedHours: 6.0,
+    enrolledCount: 215,
+    completionRate: 92,
+    status: 'Published',
+    scenarioId: 'sc-escalation-01',
+    chapters: [
+      {
+        id: 'chap-ai-1',
+        title: 'America’s AI Action Plan & Applied Business Tools',
+        description: 'Core concepts of generative models, workplace workflow integration, and measurable business impact.',
+        lessons: [
+          {
+            id: 'les-ai-1',
+            title: 'Harnessing AI in Regional Industries & Daily Tasks',
+            summary: 'Practical prompt frameworks and intelligent assistants for small businesses and frontline roles.',
+            durationMinutes: 20,
+            hasVoiceover: true,
+            content: 'America’s AI Action Plan highlights empowering workers with AI literacy. Learn how local service businesses and manufacturing teams leverage AI for customer triage, scheduling optimization, and inventory forecasting.',
+            quiz: [
+              {
+                id: 'q-ai-1',
+                question: 'What is the primary objective of EDA’s AI Upskill Accelerator Pilot Program?',
+                options: [
+                  'Replace frontline staff with automated server farms',
+                  'Support industry-driven partnerships to upskill workers in AI technologies for regional economic growth',
+                  'Mandate proprietary software licenses across all government agencies'
+                ],
+                correctIndex: 1,
+                explanation: 'The $25M EDA national competition funds workforce training partnerships to give workers in-demand AI skills that enhance business outcomes.'
+              }
+            ]
+          },
+          {
+            id: 'les-ai-2',
+            title: 'Human-in-the-Loop Operations & Ethical Decisioning',
+            summary: 'Verifying AI outputs, preventing hallucinations, and safeguarding data privacy.',
+            durationMinutes: 25,
+            hasVoiceover: true,
+            content: 'Effective workforce AI adoption requires critical verification and privacy compliance. Master cross-checking techniques, human review checkpoints, and data security.'
+          }
+        ]
+      }
+    ]
   }
 ];
 
@@ -389,6 +439,20 @@ export const INITIAL_LEARNING_PATHS: LearningPath[] = [
     activeLearners: 64,
     adaptiveRules: [
       'Phishing test failure triggers immediate mandatory scenario simulation retake within 24 hours.'
+    ]
+  },
+  {
+    id: 'path-ai-upskill',
+    title: 'AI Upskill Accelerator Track (EDA Pilot Program)',
+    targetRole: 'Regional Workforce & Industry Operators',
+    department: 'Workforce Development & Innovation',
+    description: 'Industry-driven AI skills pathway supporting regional economic competitiveness, AI Action Plan literacy, and frontline business efficiency. Aligned with EDA $25M Pilot (Deadline: July 10, 2026, 4:59pm ET via EDGE).',
+    courses: ['course-103', 'course-101'],
+    estimatedWeeks: 6,
+    activeLearners: 95,
+    adaptiveRules: [
+      'Score >85% on Applied AI tool simulation unlocks Advanced Prompt Chaining and Autonomous Agent integration electives.',
+      'Practical business application module requires submission of an employer-verified AI productivity workflow.'
     ]
   }
 ];
