@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@layer base {
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+.font-script {
+  font-family: var(--font-caveat), 'Caveat', cursive;
+}
+
+.script-text {
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.hero-gradient-overlay {
+  background: linear-gradient(90deg, #0c1626 0%, #0c1626 45%, rgba(12, 22, 38, 0.75) 65%, rgba(12, 22, 38, 0.4) 100%);
+}
+
+.handwriting-accent {
+  transform: rotate(-8deg);
+  line-height: 1.15;
+}
+
+.glass-dark {
+  background: rgba(12, 22, 38, 0.75);
+  backdrop-filter: blur(8px);
+}
+
